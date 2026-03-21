@@ -1,0 +1,17 @@
+# IDE / System
+.DS_Store
+.idea/
+.vscode/
+
+# Project Logs
+sms_logs.txt
+*.log
+
+# Sensitive Files
+includes/config.php
+# (Optional) Database backups
+*.sql
+
+# User Uploads
+uploads/products/*
+!uploads/products/.gitkeep

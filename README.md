@@ -1,33 +1,36 @@
-# WAREHOUSE PRO - Inventory Management System
-Modular Inventory System built with PHP 8, MySQLi, and Vanilla JS.
+# 📦 Advanced Warehouse Management System (WMS)
 
-## Project Overview
-Warehouse Pro provides a comprehensive solution for managing warehouse operations, including tracking inventory, processing sales, handling procurement from vendors, and generating business analytics.
+[![PHP Version](https://img.shields.io/badge/php-%5E7.4%20%7C%208.x-777bb4.svg?style=flat-square&logo=php)](https://www.php.net/)
+[![MySQL](https://img.shields.io/badge/mysql-%2300f.svg?style=flat-square&logo=mysql&logoColor=white)](https://www.mysql.com/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](https://opensource.org/licenses/MIT)
 
-## Key Modules
-- **Dashboard**: Real-time stats, profit tracking, and live activity feed.
-- **Inventory**: Product management with barcode generation and image support.
-- **Sales (POS)**: Customer management, AJAX-based search, and invoice generation.
-- **Procurement**: Vendor tracking and purchase order history.
-- **Reports**: PDF and CSV exports for stock, sales, and procurement.
-- **Admin**: Role-based access control (RBAC) and department management.
-
-## Tech Stack
-- **Frontend**: HTML5, Vanilla CSS (Glassmorphism), JavaScript (ES6+).
-- **Backend**: PHP 8 (Modular MVC-lite structure).
-- **Database**: MySQL (optimized for relational integrity).
-- **Libraries**: Chart.js, FullCalendar, JsBarcode, Flatpickr.
-
-## Setup Instructions
-1. Import the `database.sql` file into your MySQL environment (e.g., PHPMyAdmin).
-2. Configure database credentials in `includes/db.php`.
-3. Run `tools/setup/setup_users.php` to generate test credentials.
-4. Default login for testing: `admin` / `admin@123`.
-
-## Version History
-- **v1.0**: Initial Release (Core modules).
-- **v1.1**: Added RBAC and Reporting.
-- **v1.2**: Elite features (Sound alerts, Global search, Barcodes, and Profit tracking).
+A professional-grade, full-stack solution for real-time inventory tracking, multi-warehouse logistics, and sales analytics. Designed for high-performance and scalability.
 
 ---
-Developed for Internship Portfolio | 2026
+
+### 🚀 Key Features
+- **📊 Real-time Dashboard:** Live analytics for sales, stock levels, and revenue trends.
+- **🏗️ Multi-Warehouse Support:** Manage stock across different locations with floor-map visualization.
+- **🛒 Dynamic Inventory:** Automated reorder point alerts and stock distribution logic.
+- **🧾 Invoicing & Sales:** Full sales cycle management with PDF invoice generation and email integration.
+- **👥 User Roles & Audit:** Secure authentication with detailed activity logs for administrative oversight.
+- **📦 Vendor & Purchase Management:** Track supply chains from procurement to warehouse entry.
+
+---
+
+### 🛠 Tech Stack
+- **Backend:** PHP (OOP), MySQL
+- **Frontend:** HTML5, CSS3, JavaScript (ES6+), Bootstrap 5
+- **Features:** AJAX-based search, Chart.js for reports, PHPMailer for notifications.
+
+---
+
+### 📸 Screenshots
+*(Add your screenshots here later to really wow them!)*
+
+---
+
+### ⚙️ Installation
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/devpatel2122/warehouse-management-system.git
