@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Warehouse Pro - Detailed Use Case Diagram</title>
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({ startOnLoad: true, theme: 'neutral' });
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            padding: 40px;
+            background: white;
+            color: #1a1a1a;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: auto;
+            border: 1px solid #e1e1e1;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        }
+
+        h1 {
+            border-bottom: 3px solid #000;
+            padding-bottom: 15px;
+            text-align: center;
+            color: #000;
+            margin-bottom: 30px;
+        }
+
+        .mermaid {
+            display: flex;
+            justify-content: center;
+            margin: 40px 0;
+            background: #fcfcfc;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px dashed #ccc;
+        }
+
+        .details {
+            margin-top: 40px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .section-box {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 5px solid #333;
+        }
+
+        h3 {
+            margin-top: 0;
+            color: #333;
+        }
+
+        ul {
+            padding-left: 20px;
+        }
+
+        @media print {
+            .no-print {
+                display: none;
+            }
+
+            body {
+                padding: 0;
+            }
+
+            .container {
+                border: none;
+                box-shadow: none;
+                width: 100%;
+                max-width: 100%;
+            }
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #000;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            cursor: pointer;
+            border: none;
+            font-weight: 600;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <button class="btn no-print" onclick="window.print()">🖨️ Print Full Detailed Report</button>
+
+        <h1>Warehouse Pro: Comprehensive Use Case Analysis</h1>
+
+        <div class="mermaid">
+            graph LR
+            %% Actors
+            Admin((Admin))
+            ProdMgr((Product Mgr))
+            PurchMgr((Purchase Mgr))
+            SalesExec((Sales Exec))
+            StockKeeper((Stock Keeper))
+
+            subgraph "Warehouse Pro Management System"
+            %% Identity & Security
+            UC1(Manage User Roles & Permissions)
+            UC2(Monitor Global Audit Logs)
+            UC3(Configure System Settings \n GST, SMTP, UPI)
+
+            %% Product & Inventory
+            UC4(Maintain Detailed Catalog \n HSN, Rack/Bin, Image)
+            UC5(Analyze Inventory Snapshots)
+            UC6(AI Demand Forecasting)
+            UC7(Automated Reorder Predictions)
+
+            %% Procurement
+            UC8(Manage Vendor Relations)
+            UC9(Process Batch Purchases)
+
+            %% Sales & Operations
+            UC10(Point of Sale Processing)
+            UC11(Payment Status Tracking \n UPI Webhooks)
+            UC12(Automated Invoice Emailing)
+            UC13(Customer CRM Management)
+
+            %% Gamification & Productivity
+            UC14(Assign & Manage Staff Tasks)
+            UC15(Leaderboard & XP Tracking)
+
+            %% Reporting
+            UC16(Export BI Reports \n CSV/Excel/PDF)
+            UC17(Real-time Dashboard Analytics)
+            end
+
+            %% Relationships
+            Admin --> UC1
+            Admin --> UC2
+            Admin --> UC3
+            Admin --> UC14
+            Admin --> UC16
+            Admin --> UC17
+
+            ProdMgr --> UC4
+            ProdMgr --> UC16
+
+            PurchMgr --> UC8
+            PurchMgr --> UC9
+
+            SalesExec --> UC10
+            SalesExec --> UC11
+            SalesExec --> UC12
+            SalesExec --> UC13
+            SalesExec --> UC15
+
+            StockKeeper --> UC4
+            StockKeeper --> UC5
+            StockKeeper --> UC6
+            StockKeeper --> UC7
+        </div>
+
+        <div class="details">
+            <div class="section-box">
+                <h3>Core Operations</h3>
+                <ul>
+                    <li><strong>Strategic Oversight:</strong> Full control over audit trails and system configuration.
+                    </li>
+                    <li><strong>Inventory lifecycle:</strong> Tracking from procurement (Vendors) to storage (Rack/Bin)
+                        to sale.</li>
+                    <li><strong>Financial Compliance:</strong> Automated GST summary generation (CGST/SGST/IGST).</li>
+                </ul>
+            </div>
+            <div class="section-box">
+                <h3>Advanced Features</h3>
+                <ul>
+                    <li><strong>AI Integration:</strong> Predictive modeling for demand forecasting and reordering.</li>
+                    <li><strong>Automation:</strong> Real-time payment verification via Razorpay/UPI webhooks.</li>
+                    <li><strong>Gamification:</strong> Behavior-driven XP system to incentivize staff productivity.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Warehouse Pro - System Diagrams</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            padding: 40px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #1a73e8;
+            margin-bottom: 40px;
+        }
+
+        h2 {
+            border-bottom: 2px solid #e8eaed;
+            padding-bottom: 10px;
+            margin-top: 50px;
+            color: #5f6368;
+        }
+
+        .diagram-box {
+            background: #fff;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            overflow-x: auto;
+        }
+
+        .desc {
+            font-style: italic;
+            color: #666;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        @media print {
+            .no-print {
+                display: none;
+            }
+
+            body {
+                background: white;
+                padding: 0;
+            }
+
+            .container {
+                box-shadow: none;
+                width: 100%;
+                border-radius: 0;
+            }
+
+            .diagram-box {
+                border: none;
+            }
+
+            h2 {
+                page-break-before: always;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Warehouse Pro: System Diagrams</h1>
+        <p class="no-print" style="text-align: center; color: #666;">These diagrams are part of the project
+            documentation. Use <b>Ctrl+P</b> to print them for your report.</p>
+
+        <h2>1. Use Case Diagram</h2>
+        <span class="desc">High-level view of interactions between users and system modules.</span>
+        <div class="diagram-box">
+            <pre class="mermaid">
+graph LR
+    subgraph Users ["System Actors"]
+        Admin((Admin))
+        Sales((Sales Staff))
+        Store((Store Keeper))
+        Purchase((Purchase Dept))
+    end
+
+    subgraph System ["Warehouse Pro System"]
+        UC1([Manage Users & Roles])
+        UC2([Manage Inventory])
+        UC3([Process Sales & POS])
+        UC4([Purchase from Vendors])
+        UC5([View Analytics & Reports])
+        UC6([Barcode Scanning])
+        UC7([Audit Logging])
+    end
+
+    Admin --- UC1
+    Admin --- UC5
+    Admin --- UC7
+    
+    Sales --- UC3
+    Sales --- UC6
+    Sales --- UC5
+
+    Store --- UC2
+    Store --- UC6
+
+    Purchase --- UC4
+    Purchase --- UC5
+            </pre>
+        </div>
+
+        <h2>2. Activity Diagram (Sale Process)</h2>
+        <span class="desc">Operational workflow for finalizing a new sale in the POS module.</span>
+        <div class="diagram-box">
+            <pre class="mermaid">
+stateDiagram-v2
+    [*] --> StartSale
+    StartSale --> SearchProduct: Scan Barcode / Search
+    SearchProduct --> AddToCart: Product Found
+    AddToCart --> ReviewCart
+    ReviewCart --> CheckStock
+    CheckStock --> Payment: Sufficient Stock
+    CheckStock --> Error: Low Stock
+    Error --> SearchProduct
+    Payment --> FinalizeSale: Success
+    FinalizeSale --> GenerateInvoice
+    GenerateInvoice --> UpdateStock
+    UpdateStock --> [*]
+            </pre>
+        </div>
+
+        <h2>3. Entity Relationship (ER) Diagram</h2>
+        <span class="desc">Database schema relationships for Inventory, Sales, and Procurement.</span>
+        <div class="diagram-box">
+            <pre class="mermaid">
+erDiagram
+    USERS ||--o{ AUDIT_LOGS : performs
+    USERS ||--o{ TASKS : assigned_to
+    CATEGORIES ||--|{ SUB_CATEGORIES : contains
+    CATEGORIES ||--o{ PRODUCTS : categorizes
+    PRODUCTS ||--o{ SALE_ITEMS : included_in
+    PRODUCTS ||--o{ PURCHASE_ITEMS : restocked_by
+    VENDORS ||--o{ PURCHASES : supplies
+    CUSTOMERS ||--o{ SALES : buys
+    SALES ||--|{ SALE_ITEMS : contains
+    PURCHASES ||--|{ PURCHASE_ITEMS : contains
+    PRODUCTS {
+        int id
+        string name
+        string barcode
+        decimal stock_quantity
+        decimal price
+    }
+    USERS {
+        int id
+        string username
+        string role
+    }
+            </pre>
+        </div>
+
+        <h2>4. Data Flow Diagram (Level 1)</h2>
+        <span class="desc">Process-oriented data flow across system modules.</span>
+        <div class="diagram-box">
+            <pre class="mermaid">
+graph TD
+    User([User]) --> Auth[Authentication Process]
+    Auth --> Dashboard[Dashboard Logic]
+    Dashboard --> Inventory[Inventory Module]
+    Dashboard --> Sales[Sales/POS Module]
+    Dashboard --> Procurement[Vendor Tracking]
+    
+    Inventory -- Read/Write --> DB[(Database)]
+    Sales -- Read/Write --> DB
+    Procurement -- Read/Write --> DB
+            </pre>
+        </div>
+
+        <h2>5. Class Diagram (Simplified)</h2>
+        <span class="desc">Logical object structure based on the project architecture.</span>
+        <div class="diagram-box">
+            <pre class="mermaid">
+classDiagram
+    class User {
+        +int id
+        +string username
+        +string role
+        +login()
+    }
+    class Product {
+        +int id
+        +string name
+        +decimal stock_quantity
+        +updateStock()
+    }
+    class Sale {
+        +int id
+        +decimal total_amount
+        +finalize()
+    }
+    class Category {
+        +int id
+        +string name
+    }
+
+    User "1" -- "many" Sale : processes
+    Product "many" -- "1" Category : belongs to
+    Sale "1" -- "many" Product : includes
+            </pre>
+        </div>
+
+        <h2>6. Sequence Diagram (POS Checkout)</h2>
+        <span class="desc">Step-by-step interaction between Client, Server, and Database.</span>
+        <div class="diagram-box">
+            <pre class="mermaid">
+sequenceDiagram
+    participant User
+    participant Frontend
+    participant Backend
+    participant DB
+
+    User->>Frontend: Enter Product Code
+    Frontend->>Backend: Search (AJAX)
+    Backend->>DB: Query Product Table
+    DB-->>Backend: Product Data (Price, Stock)
+    Backend-->>Frontend: Display Details
+    User->>Frontend: Add to Cart & Checkout
+    Frontend->>Backend: Finalize Sale Request
+    Backend->>DB: Insert Sale Record
+    Backend->>DB: Update Product Stock
+    Backend->>DB: Log Audit Action
+    Backend-->>Frontend: Sale Successful (Invoice ID)
+    Frontend-->>User: Print Invoice/Show Success
+            </pre>
+        </div>
+
+        <h2>7. System Architecture</h2>
+        <span class="desc">Three-tier architectural overview (Web-App-DB).</span>
+        <div class="diagram-box">
+            <pre class="mermaid">
+graph TD
+    subgraph ClientLayer [Client Layer]
+        Browser[Web Browser / POS Interface]
+    end
+    
+    subgraph AppLayer [Application Layer - Web Server]
+        PHP[PHP 8 Engine]
+        JS[Vanilla JS Logic]
+        CSS[Glassmorphism Styling]
+    end
+
+    subgraph DataLayer [Data Layer - MySQL Server]
+        MySQL[(MySQL Engine)]
+    end
+
+    Browser -- "HTTP/HTTPS (AJAX)" --> PHP
+    PHP -- "SQL Queries (MySQLi)" --> MySQL
+    MySQL -- "Result Set" --> PHP
+    PHP -- "HTML/JSON Response" --> Browser
+            </pre>
+        </div>
+    </div>
+    <script>
+        mermaid.initialize({ startOnLoad: true });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,15 @@
+{
+    "name": "Warehouse Pro Enterprise",
+    "short_name": "WarehousePro",
+    "start_url": "index.php",
+    "display": "standalone",
+    "background_color": "#0f172a",
+    "theme_color": "#6366f1",
+    "icons": [
+        {
+            "src": "https://cdn-icons-png.flaticon.com/512/2897/2897818.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ]
+}
