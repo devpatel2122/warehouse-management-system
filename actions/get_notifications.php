@@ -7,8 +7,8 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
-// Fetch products where stock is at or below their individual reorder level
-$query = "SELECT id, name, stock_quantity, reorder_level FROM products WHERE stock_quantity <= reorder_level LIMIT 10";
+// Fetch products where stock is at or below their individual reorder level, excluding deleted ones
+$query = "SELECT id, name, stock_quantity, reorder_level FROM products WHERE is_deleted = 0 AND stock_quantity <= reorder_level AND reorder_level > 0 LIMIT 10";
 $res = $conn->query($query);
 $notifications = [];
 while ($row = $res->fetch_assoc()) {

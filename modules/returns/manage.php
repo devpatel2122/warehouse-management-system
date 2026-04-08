@@ -80,39 +80,207 @@ if ($_SESSION['role'] != 'admin' && $_SESSION['role'] != 'sell_dept') {
             <form id="returnForm">
                 <div class="form-group">
                     <label>Invoice Number</label>
-                    <input type="text" class="form-input" placeholder="INV-XXXXX" required>
+                    <input type="text" id="invoiceNumber" class="form-input" placeholder="INV-XXXXX" required onblur="fetchInvoiceItems()">
+                    <div id="invoiceLoading" style="display:none; font-size:12px; color:var(--primary); margin-top:5px;"><i class="fas fa-spinner fa-spin"></i> Fetching invoice details...</div>
                 </div>
-                <div class="form-group">
+
+                <div id="itemsContainer" style="display:none; margin-top: 15px;">
+                    <label style="font-size: 13px; color: var(--text-muted); text-transform: uppercase;">Sold Items (Select to Return)</label>
+                    <div id="itemsList" style="margin-top: 10px; max-height: 250px; overflow-y: auto; border: 1px solid var(--glass-border); border-radius: 8px; padding: 10px; background: rgba(0,0,0,0.1);">
+                        <!-- Dynamic items -->
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-top: 15px;">
                     <label>Reason for Return</label>
-                    <select class="form-input">
+                    <select id="returnReason" class="form-input">
                         <option>Damaged on Arrival</option>
                         <option>Wrong Specification</option>
                         <option>Customer Dissatisfaction</option>
                         <option>Expired Stock</option>
+                        <option>Other</option>
                     </select>
                 </div>
+                <!-- Action selection... rest of form -->
                 <div class="form-group">
                     <label>Action</label>
                     <div style="display: flex; gap: 20px; color: var(--text-muted); font-size: 14px;">
-                        <label><input type="radio" name="action" checked> Restock Item</label>
-                        <label><input type="radio" name="action"> Discard/Write-off</label>
+                        <label><input type="radio" name="returnAction" value="restock" checked> Restock Item</label>
+                        <label><input type="radio" name="returnAction" value="discard"> Discard/Write-off</label>
                     </div>
                 </div>
                 <div style="display: flex; gap: 12px; margin-top: 20px;">
                     <button type="button" class="btn" style="background: var(--secondary);" onclick="document.getElementById('returnModal').style.display='none'">Cancel</button>
-                    <button type="submit" class="btn">Confirm Return</button>
+                    <button type="submit" id="submitReturnBtn" class="btn" disabled>Confirm Return</button>
                 </div>
             </form>
         </div>
     </div>
 
     <script>
+        let currentSale = null;
+        let currentItems = [];
+
+        function loadReturns() {
+            fetch('../../actions/get_returns.php')
+                .then(res => res.json())
+                .then(data => {
+                    const tbody = document.getElementById('returnsTableBody');
+                    if (data.success && data.returns.length > 0) {
+                        tbody.innerHTML = '';
+                        data.returns.forEach(ret => {
+                            const date = new Date(ret.return_date).toLocaleDateString();
+                            tbody.innerHTML += `
+                                <tr>
+                                    <td>${ret.id}</td>
+                                    <td style="font-weight:600;">${ret.invoice_no}</td>
+                                    <td>${ret.product_name}</td>
+                                    <td>${ret.quantity}</td>
+                                    <td>${ret.reason}</td>
+                                    <td>${date}</td>
+                                    <td style="text-align: right;">
+                                        <span class="badge ${ret.action === 'restock' ? 'badge-success' : 'badge-danger'}">${ret.action}</span>
+                                    </td>
+                                </tr>
+                            `;
+                        });
+                    } else {
+                        tbody.innerHTML = `
+                            <tr>
+                                <td colspan="7" class="text-center" style="padding: 40px; color: var(--text-muted);">
+                                    <i class="fas fa-box-open" style="font-size: 48px; display: block; margin-bottom: 10px; opacity: 0.5;"></i>
+                                    No returns processed yet.
+                                </td>
+                            </tr>
+                        `;
+                    }
+                });
+        }
+
+        function fetchInvoiceItems() {
+            const invoiceNo = document.getElementById('invoiceNumber').value.trim();
+            if (!invoiceNo) return;
+
+            document.getElementById('invoiceLoading').style.display = 'block';
+            document.getElementById('itemsContainer').style.display = 'none';
+            document.getElementById('submitReturnBtn').disabled = true;
+
+            fetch('../../actions/get_sale_by_invoice.php?invoice_no=' + encodeURIComponent(invoiceNo))
+                .then(res => res.json())
+                .then(data => {
+                    document.getElementById('invoiceLoading').style.display = 'none';
+                    if (data.success) {
+                        currentSale = data.sale;
+                        currentItems = data.items;
+                        renderItems(data.items);
+                        document.getElementById('itemsContainer').style.display = 'block';
+                    } else {
+                        alert(data.message || 'Invoice not found.');
+                        currentSale = null;
+                        currentItems = [];
+                    }
+                })
+                .catch(err => {
+                    document.getElementById('invoiceLoading').style.display = 'none';
+                    alert('Error: ' + err.message);
+                });
+        }
+
+        function renderItems(items) {
+            const list = document.getElementById('itemsList');
+            list.innerHTML = '';
+            
+            if (items.length === 0) {
+                list.innerHTML = '<div style="text-align:center; padding:10px; color:var(--text-muted);">No items found in this invoice.</div>';
+                return;
+            }
+
+            items.forEach(item => {
+                const itemDiv = document.createElement('div');
+                itemDiv.style.cssText = 'display: flex; align-items: center; justify-content: space-between; padding: 10px; border-bottom: 1px solid var(--glass-border);';
+                
+                itemDiv.innerHTML = `
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <input type="checkbox" class="return-item-check" data-id="${item.id}" data-pid="${item.product_id}" data-max-qty="${item.quantity}" onchange="toggleSubmitBtn()">
+                        <div>
+                            <div style="font-weight:600; font-size:14px;">${item.product_name}</div>
+                            <div style="font-size:11px; color:var(--text-muted);">Sold: ${item.quantity} × ₹${item.unit_price}</div>
+                        </div>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <label style="font-size:11px;">Return Qty:</label>
+                        <input type="number" class="return-item-qty form-input" style="width:60px; height:25px; padding:2px 5px; font-size:12px;" value="${item.quantity}" min="0.1" step="0.1" max="${item.quantity}">
+                    </div>
+                `;
+                list.appendChild(itemDiv);
+            });
+        }
+
+        function toggleSubmitBtn() {
+            const checks = document.querySelectorAll('.return-item-check:checked');
+            document.getElementById('submitReturnBtn').disabled = checks.length === 0;
+        }
+
         document.getElementById('returnForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            alert('Return request initiated and pending supervisor approval.');
-            document.getElementById('returnModal').style.display='none';
-            this.reset();
+            
+            const selectedItems = [];
+            const checks = document.querySelectorAll('.return-item-check:checked');
+            
+            checks.forEach(check => {
+                const container = check.parentElement.parentElement;
+                const qtyInput = container.querySelector('.return-item-qty');
+                
+                selectedItems.push({
+                    sale_item_id: check.getAttribute('data-id'),
+                    product_id: check.getAttribute('data-pid'),
+                    qty: qtyInput.value,
+                    reason: document.getElementById('returnReason').value,
+                    action: document.querySelector('input[name="returnAction"]:checked').value
+                });
+            });
+
+            if (selectedItems.length === 0) {
+                alert('Please select at least one item to return.');
+                return;
+            }
+
+            const submitBtn = document.getElementById('submitReturnBtn');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+            
+            fetch('../../actions/process_return.php', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    invoice_no: document.getElementById('invoiceNumber').value,
+                    items: selectedItems
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = 'Confirm Return';
+                
+                if (data.success) {
+                    alert('Return processed successfully!');
+                    document.getElementById('returnModal').style.display='none';
+                    this.reset();
+                    document.getElementById('itemsContainer').style.display = 'none';
+                    loadReturns();
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(err => {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = 'Confirm Return';
+                alert('Network error: ' + err.message);
+            });
         });
+
+        // Initial load
+        document.addEventListener('DOMContentLoaded', loadReturns);
     </script>
 </body>
 </html>

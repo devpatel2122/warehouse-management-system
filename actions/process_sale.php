@@ -39,9 +39,13 @@ try {
     $payment_method = $input['payment_method'] ?? 'Cash';
     // Use manual status if provided, otherwise fallback to method defaults
     $payment_status = $input['payment_status'] ?? (($payment_method == 'Credit' || $payment_method == 'UPI') ? 'Unpaid' : 'Paid');
+    $walkin_name = !empty($input['walkin_name']) ? $conn->real_escape_string($input['walkin_name']) : null;
+    $walkin_contact = !empty($input['walkin_contact']) ? $conn->real_escape_string($input['walkin_contact']) : null;
+    $walkin_address = !empty($input['walkin_address']) ? $conn->real_escape_string($input['walkin_address']) : null;
+    $transaction_ref = !empty($input['transaction_ref']) ? $conn->real_escape_string($input['transaction_ref']) : null;
 
-    $stmt = $conn->prepare("INSERT INTO sales (customer_id, total_amount, cgst_amount, sgst_amount, payment_method, payment_status, invoice_no, sale_date) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-    $stmt->bind_param("idddssss", $customer_id, $total_amount, $cgst_amount, $sgst_amount, $payment_method, $payment_status, $invoice_no, $sale_date);
+    $stmt = $conn->prepare("INSERT INTO sales (customer_id, total_amount, cgst_amount, sgst_amount, payment_method, payment_status, invoice_no, sale_date, walkin_name, walkin_contact, walkin_address, transaction_ref) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+    $stmt->bind_param("idddssssssss", $customer_id, $total_amount, $cgst_amount, $sgst_amount, $payment_method, $payment_status, $invoice_no, $sale_date, $walkin_name, $walkin_contact, $walkin_address, $transaction_ref);
     $stmt->execute();
     $sale_id = $conn->insert_id;
 

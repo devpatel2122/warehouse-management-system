@@ -147,11 +147,12 @@ if ($_SESSION['role'] != 'admin' && $_SESSION['role'] != 'sell_dept') {
                     tbody.innerHTML = '';
                     data.forEach(sale => {
                         const statusClass = sale.payment_status.toLowerCase() === 'paid' ? 'badge-success' : 'badge-danger';
+                        const displayName = sale.customer_name || sale.walkin_name || 'Walk-in Customer';
                         tbody.innerHTML += `
                             <tr>
                                 <td style="font-weight: 600;">${sale.invoice_no}</td>
                                 <td>${sale.sale_date}</td>
-                                <td>${sale.customer_name || 'Walk-in Customer'}</td>
+                                <td>${displayName}</td>
                                 <td style="font-weight: 600; color: var(--primary);">${CURRENCY_SYMBOL}${sale.total_amount}</td>
                                 <td>
                                     <span class="badge ${statusClass}">${sale.payment_status}</span>
@@ -270,9 +271,9 @@ if ($_SESSION['role'] != 'admin' && $_SESSION['role'] != 'sell_dept') {
                                 <div class="info-grid">
                                     <div class="info-box">
                                         <h3>Billed To</h3>
-                                        <p><strong>${sale.customer_name || 'Walk-in Customer'}</strong></p>
-                                        <p>${sale.customer_address || 'No Address Provided'}</p>
-                                        <p>Phone: ${sale.customer_phone || 'N/A'}</p>
+                                        <p><strong>${sale.customer_name || sale.walkin_name || 'Walk-in Customer'}</strong></p>
+                                        <p>${sale.customer_address || sale.walkin_address || 'No Address Provided'}</p>
+                                        <p>Phone: ${sale.customer_phone || sale.walkin_contact || 'N/A'}</p>
                                         <p>GSTIN: ${sale.customer_gstin || 'Unregistered'}</p>
                                     </div>
                                     <div class="info-box" style="text-align: right;">
@@ -368,18 +369,34 @@ if ($_SESSION['role'] != 'admin' && $_SESSION['role'] != 'sell_dept') {
             const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(upiUrl)}`;
             
             document.getElementById('qrCodeContainer').innerHTML = `
-                <img src="${qrUrl}" style="max-width: 100%; height: auto; border: 1px solid #eee; padding: 10px; border-radius: 12px;">
-                <p style="font-size: 11px; color: var(--primary); margin-top: 10px;"><i class="fas fa-sync fa-spin"></i> Waiting for payment confirmation...</p>
+                <div style="background: white; padding: 20px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); margin-bottom: 20px;">
+                    <img src="${qrUrl}" style="max-width: 100%; height: auto; border: none; margin-bottom: 15px;">
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 5px;">
+                        <img src="https://www.gstatic.com/images/branding/googlelogo/2x/googlelogo_color_92x30dp.png" height="20" style="opacity: 0.8;">
+                        <span style="font-weight: 700; color: #5f6368; font-size: 14px;">Pay</span>
+                    </div>
+                </div>
                 
-                <div style="margin: 20px 0; padding-top: 20px; border-top: 1px solid #e2e8f0;">
-                    <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 15px;">- 100% AUTOMATED VERIFICATION -</p>
-                    <button class="btn" style="background: linear-gradient(135deg, #4f46e5, #7c3aed); border: none; font-weight: 700; padding: 15px; border-radius: 12px; box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.3);" onclick="payViaSimulator(${id}, ${amount}, '${sale_no}')">
-                        <i class="fas fa-bolt"></i> Automated Digital Payment (v2)
+                <p style="font-size: 11px; color: var(--primary); margin-bottom: 20px;"><i class="fas fa-sync fa-spin"></i> Waiting for payment confirmation...</p>
+                
+                <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px;">
+                    <a href="${upiUrl}" class="btn" style="background: #1a73e8; color: white; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 14px; border-radius: 12px; font-weight: 700; box-shadow: 0 4px 12px rgba(26, 115, 232, 0.3);">
+                        <i class="fab fa-google-pay" style="font-size: 24px;"></i> Open in App (Mobile Only)
+                    </a>
+                    
+                    <button class="btn" style="background: var(--bg-dark); color: var(--text-main); border: 1px solid var(--border-color); font-size: 12px; padding: 10px; display: flex; align-items: center; justify-content: center; gap: 8px;" onclick="copyUPI('${merchantUpi}')">
+                        <i class="fas fa-copy"></i> Copy UPI ID: ${merchantUpi}
                     </button>
-                    <p style="font-size: 10px; color: #10b981; margin-top: 10px; font-weight: 600;"><i class="fas fa-check-circle"></i> Local Simulation Enabled</p>
                 </div>
 
-                <button class="btn" onclick="markAsPaid(${id}, event)" style="margin-top: 0; font-size: 12px; padding: 8px; background: var(--secondary);">Manually Confirm Payment</button>
+                <div style="margin: 20px 0; padding-top: 20px; border-top: 1px solid var(--border-color);">
+                    <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 15px;">- AUTOMATED SIMULATION -</p>
+                    <button class="btn" style="background: linear-gradient(135deg, #4f46e5, #7c3aed); border: none; font-weight: 700; padding: 15px; border-radius: 12px; box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.3);" onclick="payViaSimulator(${id}, ${amount}, '${sale_no}')">
+                        <i class="fas fa-bolt"></i> Local Payment Simulation
+                    </button>
+                </div>
+
+                <button class="btn" onclick="markAsPaid(${id}, event)" style="margin-top: 0; font-size: 12px; padding: 10px; background: transparent; color: var(--text-muted); border: 1px dashed var(--border-color);">Manual Confirmation</button>
             `;
             modal.style.display = 'flex';
 
@@ -403,6 +420,12 @@ if ($_SESSION['role'] != 'admin' && $_SESSION['role'] != 'sell_dept') {
         }
 
 
+
+        function copyUPI(upi) {
+            navigator.clipboard.writeText(upi).then(() => {
+                alert('UPI ID copied: ' + upi);
+            });
+        }
 
         function payViaSimulator(id, amount, sale_no) {
             const sim = document.getElementById('simulatorModal');

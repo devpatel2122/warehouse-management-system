@@ -1,9 +1,6 @@
 <?php
-require_once '../includes/db.php';
-header('Content-Type: application/json');
-
-$q = $conn->real_escape_string($_GET['q'] ?? '');
-
+require_once 'includes/db.php';
+$q = 'Apple';
 $query = "SELECT p.id, p.name, p.price, p.stock_quantity, p.barcode, p.serial_number, c.name as category_name 
           FROM products p
           LEFT JOIN categories c ON p.category_id = c.id
@@ -14,10 +11,11 @@ $query = "SELECT p.id, p.name, p.price, p.stock_quantity, p.barcode, p.serial_nu
           LIMIT 20";
 
 $result = $conn->query($query);
-$products = [];
-while ($row = $result->fetch_assoc()) {
-    $products[] = $row;
+if ($result) {
+    while ($row = $result->fetch_assoc()) {
+        print_r($row);
+    }
+} else {
+    echo $conn->error;
 }
-
-echo json_encode($products);
 ?>

@@ -57,6 +57,12 @@ if ($_SESSION['role'] != 'admin' && $_SESSION['role'] != 'product_dept') {
             </header>
 
             <div style="background: var(--card-bg); border-radius: 20px; border: 1px solid var(--border-color); overflow: hidden;">
+                <div style="padding: 20px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
+                    <div style="position: relative; width: 300px;">
+                        <i class="fas fa-search" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted);"></i>
+                        <input type="text" id="inventorySearch" placeholder="Search Inventory..." style="width: 100%; padding: 10px 10px 10px 35px; background: var(--bg-dark); border: 1px solid var(--border-color); border-radius: 10px; color: var(--text-main); font-size: 13px;">
+                    </div>
+                </div>
                 <table style="width: 100%; border-collapse: collapse; text-align: left;">
                     <thead>
                         <tr style="background: var(--glass-bg);">
@@ -295,8 +301,8 @@ if ($_SESSION['role'] != 'admin' && $_SESSION['role'] != 'product_dept') {
         }
 
         // Main data loader
-        function loadProducts() {
-            fetch('../../actions/get_products.php')
+        function loadProducts(q = '') {
+            fetch(`../../actions/get_products.php?q=${encodeURIComponent(q)}`)
                 .then(response => response.json())
                 .then(data => {
                     const tbody = document.getElementById('productTableBody');
@@ -410,6 +416,15 @@ if ($_SESSION['role'] != 'admin' && $_SESSION['role'] != 'product_dept') {
                 }
                 else alert(data.message);
             });
+        });
+
+        // Search with Debounce
+        let searchTimeout;
+        document.getElementById('inventorySearch').addEventListener('input', (e) => {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                loadProducts(e.target.value);
+            }, 300);
         });
 
         loadProducts();
